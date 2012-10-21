@@ -8,7 +8,7 @@ float get_mem_total()
 		char buffer[2048];
 		char *match;
 		size_t bytes_read;
-		float clock_speed;
+		float value;
 		FILE *fp;
 
 		fp = fopen("/proc/meminfo", "r");
@@ -34,9 +34,9 @@ float get_mem_total()
 		}
 
 		/* Extract value */
-		sscanf (match, "MemTotal: %f", &clock_speed);
+		sscanf (match, "MemTotal: %f", &value);
 
-		return clock_speed;
+		return value;
 }
 
 float get_mem_free()
@@ -44,7 +44,7 @@ float get_mem_free()
 		char buffer[2048];
 		char *match;
 		size_t bytes_read;
-		float clock_speed;
+		float value;
 		FILE *fp;
 
 		fp = fopen("/proc/meminfo", "r");
@@ -70,9 +70,9 @@ float get_mem_free()
 		}
 
 		/* Extract value */
-		sscanf (match, "MemFree: %f", &clock_speed);
+		sscanf (match, "MemFree: %f", &value);
 
-		return clock_speed;
+		return value;
 }
 
 
