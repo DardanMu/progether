@@ -3,92 +3,131 @@
 #include <string.h>
 #include <unistd.h>
 
-float get_mem_total()
+#define KEY_STRING_SIZE 200
+
+typedef struct MemInfo
 {
-		char buffer[2048];
-		char *match;
-		size_t bytes_read;
-		float value;
-		FILE *fp;
+	unsigned int total;
+	unsigned int free;
+	unsigned int cached;
+	unsigned int active;
+	unsigned int inactive;
+	unsigned int swap_total;
+	unsigned int swap_free;
 
-		fp = fopen("/proc/meminfo", "r");
+}memInfo;
 
-		bytes_read = fread(buffer, 1, sizeof(buffer), fp);
+memInfo *init(memInfo *memory)
+{
+	memory->total = 0;
+	memory->free = 0;
+	memory->cached = 0;
+	memory->active = 0;
+	memory->inactive = 0;
+	memory->swap_total = 0;
+	memory->swap_free = 0;
 
-		/* If nothing is read or the buffer is totally full then bail */
-		if (bytes_read == 0 || bytes_read == sizeof(buffer))
-		{
-			perror("Nothing Read or overflow\n");
-			return 0;
-		}
-
-		buffer[bytes_read] = '\0';
-
-		/* Find the line for desired value */
-		match = strstr(buffer, "MemTotal");
-
-		if (match == NULL)
-		{
-			perror("Memtotal line not found\n");
-			return 0;
-		}
-
-		/* Extract value */
-		sscanf (match, "MemTotal: %f", &value);
-
-		return value;
+	return memory;
 }
 
-float get_mem_free()
+memInfo *create(memInfo *memory)
 {
-		char buffer[2048];
-		char *match;
-		size_t bytes_read;
-		float value;
-		FILE *fp;
+	/* Creates and initializes the struct */
 
-		fp = fopen("/proc/meminfo", "r");
+	memory = (memInfo *)malloc(sizeof(memInfo));		// Allocate memory for the list
 
-		bytes_read = fread(buffer, 1, sizeof(buffer), fp);
+	memory = init(memory);
 
-		/* If nothing is read or the buffer is totally full then bail */
-		if (bytes_read == 0 || bytes_read == sizeof(buffer))
-		{
-			perror("Nothing Read or overflow\n");
-			return 0;
-		}
-
-		buffer[bytes_read] = '\0';
-
-		/* Find the line for desired value */
-		match = strstr(buffer, "MemFree");
-
-		if (match == NULL)
-		{
-			perror("Memtotal line not found\n");
-			return 0;
-		}
-
-		/* Extract value */
-		sscanf (match, "MemFree: %f", &value);
-
-		return value;
+	return memory;
 }
 
+
+int get_mem_info(memInfo *memory)
+{
+	char buffer[2048];
+	char *match;
+	size_t bytes_read;
+	int sscanf_values[7];;
+	FILE *fp;
+
+
+	char strstr_keys[][KEY_STRING_SIZE] = {
+			"MemTotal",
+			"MemFree",
+			"Cached",
+			"Active",
+			"Inactive",
+			"SwapTotal",
+			"SwapFree",
+	};
+
+	char sscanf_keys[][KEY_STRING_SIZE] = {
+			"MemTotal: %i",
+			"MemFree: %i",
+			"Cached: %i",
+			"Active: %i",
+			"Inactive: %i",
+			"SwapTotal: %i",
+			"SwapFree: %i",
+	};
+
+
+
+	fp = fopen("/proc/meminfo", "r");
+
+	bytes_read = fread(buffer, 1, sizeof(buffer), fp);
+
+	/* If nothing is read or the buffer is totally full then bail */
+	if (bytes_read == 0 || bytes_read == sizeof(buffer))
+	{
+		perror("Error Reading Buffer (get_mem_info)\n");
+		return 1;
+	}
+
+	buffer[bytes_read] = '\0';
+
+	for (int i = 0; i < sizeof(sscanf_keys) / KEY_STRING_SIZE; i++) {
+		/* Find the line for desired value */
+		match = strstr(buffer, strstr_keys[i]);
+
+			if (match == NULL)
+			{
+				perror("Error parsing value (get_mem_info)\n");
+				return 1;
+			}
+
+			/* Extract value */
+			sscanf (match, sscanf_keys[i], &sscanf_values[i]);
+
+			/* Reset match to NULL just in case */
+			match = NULL;
+	}
+
+	/* Assign to memory struct */
+	memory->total = sscanf_values[0];
+	memory->free = sscanf_values[1];
+	memory->cached = sscanf_values[2];
+	memory->active = sscanf_values[3];
+	memory->inactive = sscanf_values[4];
+	memory->swap_total = sscanf_values[5];
+	memory->swap_free = sscanf_values[6];
+
+	return 0;
+}
 
 
 int main(void) {
 
-	for (int i = 0; i < 100; ++i) {
+	memInfo *memStruct = NULL;
 
-		 printf("\rTotal: %f Free: %f", get_mem_total(), get_mem_free());
-		 fflush(stdout);
-		 usleep(90000);
+	memStruct = create(memStruct);
 
-	}
+	get_mem_info(memStruct);
+
+	printf("Total %d", memStruct->total);
 
 
-
+	free(memStruct);
 
 	return EXIT_SUCCESS;
 }
