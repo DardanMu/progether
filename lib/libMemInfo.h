@@ -26,7 +26,7 @@ typedef struct MemInfo
 
 }memInfo;
 
-memInfo *init(memInfo *memory)
+memInfo *init_memory_struct(memInfo *memory)
 {
 	memory->total = 0;
 	memory->free = 0;
@@ -39,13 +39,13 @@ memInfo *init(memInfo *memory)
 	return memory;
 }
 
-memInfo *create(memInfo *memory)
+memInfo *create_memory_struct(memInfo *memory)
 {
 	/* Creates and initializes the struct */
 
 	memory = (memInfo *)malloc(sizeof(memInfo));
 
-	memory = init(memory);
+	memory = init_memory_struct(memory);
 
 	return memory;
 }
@@ -56,7 +56,7 @@ int get_mem_info(memInfo *memory)
 	char buffer[2048];
 	char *match;
 	size_t bytes_read;
-	int sscanf_values[7];;
+	int sscanf_values[7];
 	FILE *fp;
 
 
@@ -121,9 +121,21 @@ int get_mem_info(memInfo *memory)
 	memory->swap_total = sscanf_values[5];
 	memory->swap_free = sscanf_values[6];
 
+	fclose(fp);
 	return 0;
 }
 
+void print_memory_info(memInfo *memory)
+{
+	printf("Total: %d\nFree: %d\nCached: %d\nActive: %d\nInactive: %d\nSwap: %d\nSwap Free: %d\n",
+			memory->total,
+			memory->free,
+			memory->cached,
+			memory->active,
+			memory->inactive,
+			memory->swap_total,
+			memory->swap_free);
+}
 
 
 #endif /* LIBMEMINFO_H_ */
