@@ -34,7 +34,7 @@ memInfo *create(memInfo *memory)
 {
 	/* Creates and initializes the struct */
 
-	memory = (memInfo *)malloc(sizeof(memInfo));		// Allocate memory for the list
+	memory = (memInfo *)malloc(sizeof(memInfo));
 
 	memory = init(memory);
 
