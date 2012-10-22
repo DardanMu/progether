@@ -56,7 +56,7 @@ int get_mem_info(memInfo *memory)
 	char buffer[2048];
 	char *match;
 	size_t bytes_read;
-	int sscanf_values[7];;
+	int sscanf_values[7];
 	FILE *fp;
 
 
@@ -121,6 +121,7 @@ int get_mem_info(memInfo *memory)
 	memory->swap_total = sscanf_values[5];
 	memory->swap_free = sscanf_values[6];
 
+	fclose(fp);
 	return 0;
 }
 

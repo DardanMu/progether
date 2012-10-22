@@ -2,22 +2,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <ncurses.h>
 
 #include <defines.h>
 #include <libMemInfo.h>
+#include <libNetworkInfo.h>
 
 int main(void) {
 
-	memInfo *memStruct = NULL;
+	NetworkInfo *ppp0, *wlan0;
+	ppp0 = wlan0 = NULL;
 
-	memStruct = create(memStruct);
+	ppp0 = create_net(ppp0);
+	wlan0 = create_net(wlan0);
 
-	get_mem_info(memStruct);
+	get_network_info(ppp0, "ppp0");
+	get_network_info(wlan0, "wlan0");
 
-	printf("Total %d", memStruct->total);
 
+	print_network_info(wlan0);
 
-	free(memStruct);
+	free(ppp0);
+	free(wlan0);
 
 	return EXIT_SUCCESS;
 }
