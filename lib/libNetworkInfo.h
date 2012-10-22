@@ -26,7 +26,7 @@ typedef struct {
 
 }NetworkInfo;
 
-void init_net(NetworkInfo *device)
+void init_networking_struct(NetworkInfo *device)
 {
 	/* Initialize Variables */
 	strcpy(device->device_name,  "");
@@ -36,12 +36,12 @@ void init_net(NetworkInfo *device)
 	device->packets_sent = 0;
 }
 
-NetworkInfo *create_net(NetworkInfo *device)
+NetworkInfo *create_networking_struct(NetworkInfo *device)
 {
 	/* Allocate Memory and init NetworkInfo struct */
 	device = (NetworkInfo *)malloc(sizeof(NetworkInfo));
-	init_net
-	(device);
+	init_networking_struct(device);
+
 	return device;
 }
 
@@ -96,7 +96,8 @@ int get_network_info(NetworkInfo *device, char device_name[])
 
 void print_network_info(NetworkInfo *device)
 {
-	printf("Packets Received: %ld\nBytes Received: %ld\nPackets Sent: %ld\nBytes Sent: %ld",
+	printf("Packets Received: %ld\nBytes Received: %ld\nPackets Sent: %ld\nBytes Sent: %ld\n"
+			"",
 			device->packets_recieved,
 			device->bytes_recieved,
 			device->packets_sent,
