@@ -10,31 +10,33 @@
 
 int main(void) {
 
-	NetworkInfo *ppp0, *wlan0;
+	NetworkInfo *interface_device;
 	memInfo *memory;
-	ppp0 = wlan0 = NULL;
+	interface_device = NULL;
 	memory = NULL;
+
+	char interface_names[20][20];
+	int interface_num = 0;
+
+	interface_num = get_available_interfaces(interface_names, 20);
+
+	interface_device = create_networking_struct(interface_device);
+
+	for (int i = 0; i < interface_num; ++i) {
+		get_network_info(interface_device, interface_names[i]);
+
+		printf("\nDevice: %s\n", interface_names[i]);
+		print_network_info(interface_device);
+		init_networking_struct(interface_device);
+	}
 
 	memory = create_memory_struct(memory);
 	get_mem_info(memory);
-
-	ppp0 = create_networking_struct(ppp0);
-	wlan0 = create_networking_struct(wlan0);
-	get_network_info(ppp0, "ppp0");
-	get_network_info(wlan0, "wlan0");
-
-	printf("wlan0:\n");
-	print_network_info(wlan0);
-
-	printf("\nppp0:\n");
-	print_network_info(ppp0);
-
-	printf("\nMemory Info:\n");
+	printf("\nMemory:\n");
 	print_memory_info(memory);
 
-
-	free(ppp0);
-	free(wlan0);
+	free(interface_device);
+	free(memory);
 
 	return EXIT_SUCCESS;
 }

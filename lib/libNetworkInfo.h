@@ -48,7 +48,6 @@ NetworkInfo *create_networking_struct(NetworkInfo *device)
 
 int get_network_info(NetworkInfo *device, char device_name[])
 {
-
 	char buffer[2048];
 	char *match;
 	size_t bytes_read;
@@ -92,6 +91,44 @@ int get_network_info(NetworkInfo *device, char device_name[])
 	fclose(fp);
 	return 0;
 
+}
+
+int get_available_interfaces(char interface_names[][20], int array_size)
+{
+	/* Gets interface names from proc/net/dev. Returns the number of interface names read or -1 on error */
+
+		char *token;
+		char buffer[1024];
+		int interface_num = 0;
+
+		FILE *fp = NULL;
+
+		fp = fopen("/proc/net/dev", "r");
+
+		if (fp == NULL)
+		{
+			perror("Error reading file (get_available_interfaces)\n");
+			return -1;
+		}
+
+		while(fgets(buffer, 1024, fp) != NULL)
+		{
+			token = strtok(buffer, ":");
+
+			if (interface_num >= array_size)
+			{
+				perror("Too many interfaces (get_avaliable_interfaces)\n");
+				return interface_num;
+			}
+
+			/* The first token recieved is not what we want, this prevents the info being read */
+			if (strlen(token) < 10)
+			{
+				strcpy(interface_names[interface_num++], token);
+			}
+		}
+
+		return interface_num;
 }
 
 void print_network_info(NetworkInfo *device)
