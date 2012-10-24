@@ -69,14 +69,7 @@ int main()
 	doupdate();
 
 	/* This prevents getch() from hanging the while loop */
-	/* We probably don't need all of them on but I got frusterated and this worked... */
 	nodelay(stdscr, true);
-	nodelay(my_wins[0], true);
-	nodelay(my_wins[1], true);
-	nodelay(my_wins[2], true);
-	wtimeout(my_wins[0], true);
-	wtimeout(my_wins[1], true);
-	wtimeout(my_wins[2], true);
 	wtimeout(stdscr, true);
 
 	int exit = 1;
@@ -96,14 +89,14 @@ int main()
 					usleep(9000);
 
 				}while ((ch=getch()) == ERR);
-				/* ERR is the value returned by getch() when nodelay() is set 				*/
-				/* and there are no characters waiting in the buffer. 						*/
+				/* ERR is the value returned by getch() when nodelay() is set and there		*/
+				/* are there are no characters waiting in the buffer. 						*/
 				/* We can loop on ERR and it will break whenever the user inputs something 	*/
 
 				if (  ch == (int)'q')
 					exit = 0;
 
-				/* If the char is tab(9) increment window to scroll through devices */
+				/* If the char is tab (9) increment window to scroll through devices */
 				if (ch == 9)
 						{
 							window++;
@@ -122,7 +115,6 @@ int main()
 /* Put all the windows */
 void init_wins(WINDOW **wins, int n)
 {	int x, y, i;
-	char label[80];
 
 	y = 0;
 	x = 0;
