@@ -18,18 +18,20 @@ void edit_network_window(WINDOW *win, NetworkInfo *interface_device);
 void print_in_network_box(WINDOW *win, int starty, int startx, int width, NetworkInfo *interface_device, chtype color);
 
 int main()
-{	WINDOW *my_wins[3];
-	PANEL  *my_panels[3];
-	int ch;
-
+{
 
 	NetworkInfo *interface_device;
 	interface_device = NULL;
 
 	char device_names[20][20];
+	int interface_num = get_available_interfaces(device_names, 20);
 
 	interface_device = create_networking_struct(interface_device);
-	get_available_interfaces(device_names, 20);
+
+	WINDOW *my_wins[interface_num];
+	PANEL  *my_panels[interface_num];
+	int ch;
+
 
 
 	/* Initialize curses */
@@ -45,12 +47,12 @@ int main()
 	init_pair(3, COLOR_BLUE, COLOR_BLACK);
 	init_pair(4, COLOR_CYAN, COLOR_BLACK);
 
-	init_wins(my_wins, 3);
+	init_wins(my_wins, interface_num);
 
-	/* Attach a panel to each window */ 	/* Order is bottom up */
-	my_panels[0] = new_panel(my_wins[0]); 	/* Push 0, order: stdscr-0 */
-	my_panels[1] = new_panel(my_wins[1]); 	/* Push 1, order: stdscr-0-1 */
-	my_panels[2] = new_panel(my_wins[2]); 	/* Push 2, order: stdscr-0-1-2 */
+	/* Attach a panel to each window */
+	for (int i = 0; i < interface_num; ++i) {
+		my_panels[i] = new_panel(my_wins[i]);
+	}
 
 
 	/* Update the stacking order. 2nd panel will be on top */
@@ -58,14 +60,11 @@ int main()
 
 	/* Show it on the screen */
 	attron(COLOR_PAIR(4));
-	mvprintw(LINES - 3, 0, "Show or Hide a window with 'a'(first window)  'b'(Second Window)  'c'(Third Window)");
+	mvprintw(LINES - 3, 0, "Press Tab to scroll through devices");
 	mvprintw(LINES - 2, 0, "'q' to Exit");
 
 	attroff(COLOR_PAIR(4));
 	doupdate();
-
-	char str[200];
-	int testn = 0;
 
 	/* This prevents getch() from hanging the while loop */
 	nodelay(stdscr, true);
@@ -78,55 +77,33 @@ int main()
 	wtimeout(stdscr, true);
 
 	int exit = 1;
+	int window = 0;
 
 	while(exit)
 	{
 		ch = getch();
+		show_panel(my_panels[window]);
 
-			show_panel(my_panels[0]);
 				do {
-					ch=getch();
-					get_network_info(interface_device, device_names[0]);
-					edit_network_window(my_wins[0], interface_device);
+					init_networking_struct(interface_device);
+					get_network_info(interface_device, device_names[window]);
+					edit_network_window(my_wins[window], interface_device);
 					update_panels();
 					doupdate();
 					usleep(9000);
 
-				}while (ch==ERR);
+				}while ((ch=getch()) == ERR);
 
-			if (ch == 'b')
-			{
-				show_panel(my_panels[1]);
+				if (  ch == (int)'q')
+					exit = 0;
 
-				do {
-					ch=getch();
-					sprintf(str, "Panel two %d\r", testn++);
-					//edit_window(my_wins[1], str);
-					update_panels();
-					doupdate();
-					usleep(9000);
+				if (ch == 9)
+						{
+							window++;
 
-				}while (ch==ERR);
-			}
-
-
-			if (ch == 'c')
-			{
-				show_panel(my_panels[2]);
-				do {
-					ch=getch();
-					sprintf(str, "Panel three %d\r", testn++);
-					//edit_window(my_wins[2], str);
-					update_panels();
-					doupdate();
-					usleep(9000);
-
-				}while (ch==ERR);
-			}
-
-
-				if (  ch == 'q')
-				exit = 0;
+							if (window == interface_num)
+								window = 0;
+						}
 
 	}
 	endwin();
@@ -138,12 +115,11 @@ void init_wins(WINDOW **wins, int n)
 {	int x, y, i;
 	char label[80];
 
-	y = 2;
-	x = 10;
+	y = 0;
+	x = 0;
 	for(i = 0; i < n; ++i)
 	{	wins[i] = newwin(NLINES, NCOLS, y, x);
-		sprintf(label, "Window Number %d", i + 1);
-		win_show(wins[i], label, i + 1);
+		win_show(wins[i], "Interface:", i + 1);
 
 	}
 }
@@ -166,7 +142,7 @@ void win_show(WINDOW *win, char *label, int label_color)
 	mvwhline(win, 2, 1, ACS_HLINE, width - 2);
 	mvwaddch(win, 2, width - 1, ACS_RTEE);
 
-	print_in_middle(win, 1, 0, width, label, COLOR_PAIR(label_color));
+	print_in_middle(win, 3, 2, width, label, COLOR_PAIR(label_color));
 }
 
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color)
@@ -187,16 +163,18 @@ void print_in_middle(WINDOW *win, int starty, int startx, int width, char *strin
 	temp = (width - length)/ 2;
 	x = startx + (int)temp;
 	wattron(win, color);
-	mvwprintw(win, y, x, "%s", string);
+	mvwprintw(win, 1, 1, "%s", string);
 	wattroff(win, color);
 	refresh();
 }
 
 void print_in_network_box(WINDOW *win, int starty, int startx, int width, NetworkInfo *interface_device, chtype color)
 {
-	int x, y;
-	getyx(win, y, x);
+	int length, x, y;
+		float temp;
 
+
+	mvwprintw(win, 1, 10, "%s", interface_device->device_name);
 
 	mvwprintw(win, 3,4,"Bytes Recieved: %ld\r", interface_device->bytes_recieved);
 	mvwprintw(win,4,4,"Packets Recieved: %ld\r", interface_device->packets_recieved);
