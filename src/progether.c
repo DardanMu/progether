@@ -22,15 +22,17 @@ int main()
 
 	NetworkInfo *interface_device;
 	interface_device = NULL;
-
 	char device_names[20][20];
+
+	/* We'll use interface_num to determine how many windows and panels to create */
 	int interface_num = get_available_interfaces(device_names, 20);
+	int ch;
 
 	interface_device = create_networking_struct(interface_device);
 
 	WINDOW *my_wins[interface_num];
 	PANEL  *my_panels[interface_num];
-	int ch;
+
 
 
 
@@ -67,6 +69,7 @@ int main()
 	doupdate();
 
 	/* This prevents getch() from hanging the while loop */
+	/* We probably don't need all of them on but I got frusterated and this worked... */
 	nodelay(stdscr, true);
 	nodelay(my_wins[0], true);
 	nodelay(my_wins[1], true);
@@ -93,10 +96,14 @@ int main()
 					usleep(9000);
 
 				}while ((ch=getch()) == ERR);
+				/* ERR is the value returned by getch() when nodelay() is set 				*/
+				/* and there are no characters waiting in the buffer. 						*/
+				/* We can loop on ERR and it will break whenever the user inputs something 	*/
 
 				if (  ch == (int)'q')
 					exit = 0;
 
+				/* If the char is tab(9) increment window to scroll through devices */
 				if (ch == 9)
 						{
 							window++;
@@ -106,7 +113,9 @@ int main()
 						}
 
 	}
+	free(interface_device);
 	endwin();
+
 	return 0;
 }
 
