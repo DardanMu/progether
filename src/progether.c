@@ -22,6 +22,7 @@ int main()
 	PANEL  *my_panels[3];
 	int ch;
 
+
 	NetworkInfo *interface_device;
 	interface_device = NULL;
 
@@ -85,7 +86,7 @@ int main()
 			show_panel(my_panels[0]);
 				do {
 					ch=getch();
-					get_network_info(interface_device, "ppp0");
+					get_network_info(interface_device, device_names[0]);
 					edit_network_window(my_wins[0], interface_device);
 					update_panels();
 					doupdate();
