@@ -61,14 +61,14 @@ int get_network_info(NetworkInfo *device, char device_name[])
 	sprintf(sscanf_key, "%s%s", device_name, sscanf_format);
 
 	fp = fopen("/proc/net/dev", "r");
-
 	bytes_read = fread(buffer, 1, sizeof(buffer), fp);
+	fclose(fp);
 
 	/* If nothing is read or the buffer is totally full then bail */
 	if (bytes_read == 0 || bytes_read == sizeof(buffer))
 	{
 		perror("Error Reading Buffer (get_network_info)\n");
-		return 1;
+		return 0;
 	}
 
 	buffer[bytes_read] = '\0';
@@ -79,7 +79,7 @@ int get_network_info(NetworkInfo *device, char device_name[])
 	if (match == NULL)
 		{
 			perror("Error parsing value (get_network_info)\n");
-			return 1;
+			return 0;
 		}
 
 	sscanf (match, sscanf_key,
@@ -88,14 +88,15 @@ int get_network_info(NetworkInfo *device, char device_name[])
 			&device->bytes_sent,
 			&device->packets_sent);
 
-	fclose(fp);
+	strcpy(device->device_name, device_name);
+
 	return 0;
 
 }
 
 int get_available_interfaces(char interface_names[][20], int array_size)
 {
-	/* Gets interface names from proc/net/dev. Returns the number of interface names read or -1 on error */
+	/* Gets interface names from proc/net/dev. Returns the number of interface names read or 0 on error */
 
 		char *token;
 		char buffer[1024];
@@ -108,7 +109,7 @@ int get_available_interfaces(char interface_names[][20], int array_size)
 		if (fp == NULL)
 		{
 			perror("Error reading file (get_available_interfaces)\n");
-			return -1;
+			return 0;
 		}
 
 		while(fgets(buffer, 1024, fp) != NULL)
