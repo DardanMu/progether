@@ -1,4 +1,4 @@
-
+#include <panel.h>
 #include <libcurses_functions.h>
 
 
