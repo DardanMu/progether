@@ -27,9 +27,10 @@ Just go to downloads and grab the source, unpack it and compile it.
 
 I haven't made a proper make file yet but if you're using gcc you can run:
 
- `gcc -std=gnu99 -o debug_build src/progether.c lib/defines.h lib/libMemInfo.h lib/libNetworkInfo.h -I lib`
+ `gcc -std=gnu99 -o debug_build src/progether.c lib/defines.h lib/libMemInfo.h lib/libNetworkInfo.h lib/libcurses_functions.h -lpanel -lncurses -I lib`
+ 
+ From the root of the project, then:
 
-Then: 
 
 `./debug_build`
 
