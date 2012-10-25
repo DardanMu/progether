@@ -23,7 +23,6 @@ int main()
 	init_wins(my_wins, interface_num, 0, 0);
 	init_panels(my_panels, my_wins, interface_num);
 
-
 	/* Show usage message on the screen */
 	mvprintw(LINES - 3, 0, "Press Tab to scroll through devices");
 	mvprintw(LINES - 2, 0, "'q' to Exit");
@@ -39,15 +38,15 @@ int main()
 
 				do {
 					/* Clear values in struct just in case */
-					draw_box_with_label(my_wins[window], "Interface:", 1, 0, 0);
 					init_networking_struct(interface_device);
 
+					draw_box_with_label(my_wins[window], "Interface:", 1, 0, 0);
 					get_network_info(interface_device, device_names[window]);
 					print_in_network_box(my_wins[window], interface_device);
 
 					update_panels();
 					doupdate();
-					usleep(9000);
+					usleep(500000);
 
 				}while ((ch=getch()) == ERR);
 				/* ERR is the value returned by getch() when nodelay() is set and there		*/
